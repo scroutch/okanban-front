@@ -1,11 +1,14 @@
 
 // on objet qui contient des fonctions
 var app = {
+  base_url: "http://localhost:5050",
 
   // fonction d'initialisation, lancée au chargement de la page
   init: function () {
     console.log('app.init !');
     app.addListenertoActions();
+    app.getListsFromAPI();
+    app.getCardsFromAPI();
   },
 
   addListenertoActions: () => {
@@ -91,13 +94,16 @@ var app = {
   },
 
   /** Méthode pour créer une liste et l'ajouter au DOM */
-  makeListInDOM: (listTitle) => {
+  makeListInDOM: (listTitle, listId) => {
     //1. récupérer le template
     const template = document.getElementById('listTemplate');
     //2. cloner le template => on récupère un element HTML "nouvelleListe"
     let newList = document.importNode(template.content, true);
     //3. mettre à jour le nom de la liste.
     newList.querySelector('h2').textContent = listTitle;
+
+    //3.alt. mettre à jour l'id de la nouvelle liste
+    newList.querySelector('.panel').setAttribute('list-id', listId);
 
     //3bis. ajouter des eventListener sur les éléments de la nouvelle liste !
     newList.querySelector('.add-card-btn').addEventListener('click', app.showAddCardModal);
@@ -118,7 +124,54 @@ var app = {
     newCard.querySelector('.card-title').textContent = cardTitle;
     //4. ajouter la nouvelle carte dans la bonne liste
     document.querySelector(`[list-id="${listId}"] .panel-block`).appendChild(newCard);
-  }
+  },
+
+  /**
+   *  Méthodes API 
+   **/
+  getListsFromAPI: async () => {
+    try {
+      // on récupères les données des listes depuis l'API
+      let response = await fetch( app.base_url+'/list' );
+      // on vérifie que l'API n'a pas répondu une erreur
+      if (!response.ok) {
+        alert('Impossible de récupérer les listes');
+        return;
+      }
+      
+      let lists = await response.json();
+      console.log(lists);
+      // pour chaq liste...
+      for (let list of lists) {
+        app.makeListInDOM(list.title, list.id);
+      }      
+    } catch (error) {
+      console.error(error);
+      alert('Impossible de récupérer les listes');
+    }
+  },
+
+  getCardsFromAPI: async () => {
+    try {
+      //On récupère les données des cartes depuis l'API
+      let response = await fetch( app.base_url+'/card' );
+      //On vérifie que l'API n'envoie pas une erreur
+      if(!response.ok) {
+        alert('Impossible de récupèrer les cartes');
+        return;
+      }
+
+      let cards = await response.json();
+      console.log(cards);
+      //On boucle pour chaque carte
+      for(let card of cards) {
+        app.makeCardInDOM(card.title, card.list_id);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Impossible de récupèrer les cartes');
+    }
+  },
 
 };
 

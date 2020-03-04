@@ -71,26 +71,63 @@ var app = {
   },
 
   /** Méthode pour capturer le submit du formulaire "ajouter une liste" */
-  handleAddListForm: (event) => {
-    event.preventDefault(); // on empêche la page de se recharger !
+  handleAddListForm: async (event) => {
+    try {
+      event.preventDefault(); // on empêche la page de se recharger !
 
-    //1. récupérer les valeurs du formulaire
-    var formData = new FormData( event.target );
-    //2. envoie ces valeurs à app.makeListInDOM pour créer une liste
-    app.makeListInDOM( formData.get('name') );
-    //3. fermer la modale
-    app.hideModals();
+      //1. récupérer les valeurs du formulaire
+      var formData = new FormData( event.target );
+      var myInit = {
+        method: 'POST',
+        mode: 'cors'
+      };
+      
+      let response = await fetch( app.base_url+'/list', myInit );
+
+      if (!response.ok) {
+        alert('Erreur pour envoyer la liste');
+        return;
+      }
+      //2. envoie ces valeurs à app.makeListInDOM pour créer une liste
+      app.makeListInDOM( formData.get('title') );
+      //3. fermer la modale
+      app.hideModals();
+    }catch (error) {
+      console.error(error);
+      alert('Erreur pour envoyer la liste');
+    }
+    
   },
 
   /** Méthode pour capturer le "submit" du formulaire "ajouter une carte" */
-  handleAddCardForm: (event) => {
-    event.preventDefault(); // on empêche la page de se recharger !
+  handleAddCardForm: async (event) => {
+    try {
+      event.preventDefault(); // on empêche la page de se recharger !
     //1. récupérer les valeurs du formulaire
     var formData = new FormData( event.target );
+
+    var myInit = {
+      method: 'POST',
+      mode: 'cors'
+    };
+
+    let response = await fetch( app.base_url+'/card/:id/label', myInit );
+
+    if (!response.ok) {
+      alert('Erreur pour envoyer la carte');
+      return;
+    }
+
     //2. passer ces valeurs à app.makeCardInDOM pour créer une carte
     app.makeCardInDOM( formData.get('title'), formData.get('list_id') );
     //3. fermer la modale
     app.hideModals();
+
+    }catch (error) {
+      console.error(error);
+      alert('Erreur pour envoyer la card');
+    }
+    
   },
 
   /** Méthode pour créer une liste et l'ajouter au DOM */

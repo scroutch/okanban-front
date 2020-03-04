@@ -115,13 +115,15 @@ var app = {
   },
 
   /** Méthode pour créer une carte et l'ajouter dans la bonne liste */
-  makeCardInDOM: (cardTitle, listId) => {
+  makeCardInDOM: (cardTitle, listId, cardColor) => {
     //1. récupérer le template
     const template = document.getElementById('cardTemplate');
     //2. cloner le template
     let newCard = document.importNode(template.content, true);
     //3. mettre à jour le titre de la carte
     newCard.querySelector('.card-title').textContent = cardTitle;
+    // Mise à jour de la couleur du background
+    newCard.querySelector('.box').style.backgroundColor = cardColor;
     //4. ajouter la nouvelle carte dans la bonne liste
     document.querySelector(`[list-id="${listId}"] .panel-block`).appendChild(newCard);
   },
@@ -165,7 +167,7 @@ var app = {
       console.log(cards);
       //On boucle pour chaque carte
       for(let card of cards) {
-        app.makeCardInDOM(card.title, card.list_id);
+        app.makeCardInDOM(card.title, card.list_id, card.color);
       }
     } catch (error) {
       console.error(error);

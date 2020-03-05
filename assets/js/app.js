@@ -200,7 +200,7 @@ var app = {
       event.preventDefault();
       // 1. récupérer les infos du formulaire
       var formData = new FormData( event.target );
-      const cardId = formData.get('card-id');
+      const cardId = formData.get('card_id');
       // 2. envoyer ces infos à l'API, et attendre une réponse
       let response = await fetch( app.base_url+'/card/'+cardId, {
         method: 'PATCH',
@@ -210,12 +210,14 @@ var app = {
       if (response.ok) {
         let card = await response.json();
         event.target.closest('.column').querySelector('.card-title').textContent = card.title;
+        console.log(card.title);
       }
     } catch (error) {
       console.log(error);
     } finally {
     // 4. fermer la modale
-    event.target.classList.add('is-hidden');
+      event.target.classList.add('is-hidden');
+      event.target.closest('.column').querySelector('.card-title').classList.remove('is-hidden');
     }
   },
 

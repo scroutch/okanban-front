@@ -71,6 +71,43 @@
                             <input type="hidden" name="list_id">
                         </div>
                     </div>
+                    <div class="field">
+                        <label class="label">Couleur</label>
+                        <div class="control">
+                            <input type="color" name="color">
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success">Save changes</button>
+                    <button class="button close" type="button">Cancel</button>
+                </footer>>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="editCardModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form action="" method="POST">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Éditer une Carte</p>
+                    <button class="delete close" type="button" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Titre</label>
+                        <div class="control">
+                            <input type="text" class="input" name="title" value="" placeholder="Titre de la Carte">
+                            <input type="hidden" name="card_id">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Couleur</label>
+                        <div class="control">
+                            <input type="color" name="color">
+                        </div>
+                    </div>
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-success">Save changes</button>
@@ -82,17 +119,17 @@
 
     <!-- Les templates ! -->
     <template id="listTemplate">
-        <div class="column is-one-quarter panel" list-id="X">
+        <div class="column panel" list-id="X">
             <div class="panel-heading has-background-info">
                 <div class="columns">
                     <div class="column">
                         <h2 class="has-text-white">Perso</h2>
 
-                        <form action="" method="POST" class="is-hidden">
+                        <form action="" method="POST" class="is-hidden edit-list-form">
                             <input type="hidden" name="list-id" value="1">
                             <div class="field has-addons">
                                 <div class="control">
-                                    <input type="text" class="input is-small" name="list-name" value="" placeholder="Nom de la liste">
+                                    <input type="text" class="input is-small" name="title" value="" placeholder="Nom de la liste">
                                 </div>
                                 <div class="control">
                                     <button class="button is-small is-success">Valider</button>
@@ -124,7 +161,7 @@
                     Brancher l'API
                 </div>
                 <div class="column is-narrow">
-                    <a href="#">
+                    <a href="#" class="edit-card-btn">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-pencil-alt"></i>
                         </span>

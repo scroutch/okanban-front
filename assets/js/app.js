@@ -8,7 +8,6 @@ var app = {
     console.log('app.init !');
     app.addListenertoActions();
     app.getListsFromAPI();
-    app.getCardsFromAPI();
   },
 
   addListenertoActions: () => {
@@ -38,6 +37,9 @@ var app = {
 
     /** Soumission du formulaire "ajouter une carte" */
     document.querySelector('#addCardModal form').addEventListener('submit', app.handleAddCardForm);
+
+    /** Soumission du formulaire "éditer une carte" */
+    document.querySelector('#editCardModal form').addEventListener('submit', app.handleEditCardForm);
   },
 
   showAddListModal: () => {
@@ -54,6 +56,37 @@ var app = {
     document.querySelector('#addCardModal input[name="list_id"]').value = listId;
     // afficher la modale "addCardModal"
     document.getElementById('addCardModal').classList.add('is-active');
+  },
+
+  showEditListForm: (event) => {
+    // l'event est "branché" sur le h2, donc event.target sera toujours le h2 qui nous interesse
+    // rendre le h2 caché
+    event.target.classList.add('is-hidden');
+    // rendre le formulaire visible
+    // pour cibler le formulaire : on "remonte" à div column, et on cherche le form dedans
+    const theForm = event.target.closest('.column').querySelector('form');
+    theForm.classList.remove('is-hidden');    
+    // au passage, on préremplie l'input "title" avec le contenu du H2
+    theForm.querySelector('input[name="title"]').value = event.target.textContent;
+  },
+
+  showEditCardModal: (event) => {
+    // event.target représente l'icone stylo
+    const cardElement = event.target.closest('.box');
+    // 1. récupérer quelques infos sur la carte
+    const cardId = cardElement.getAttribute('card-id');
+    const cardTitle = cardElement.querySelector('.card-title').textContent;
+    const cardColor = cardElement.style.backgroundColor;
+
+    // 2. préremplir le formulaire avec ces infos
+    const theForm = document.querySelector('#editCardModal form');
+    theForm.querySelector('input[name="card_id"]').value = cardId;
+    theForm.querySelector('input[name="title"]').value = cardTitle;
+    // TODO: voir ce qui ne marche pas avec les couleurs....
+    theForm.querySelector('input[name="color"]').value = cardColor;
+
+    // 3. montrer la modale
+    document.querySelector('#editCardModal').classList.add('is-active');
   },
 
   hideModals: () => {
@@ -77,57 +110,113 @@ var app = {
 
       //1. récupérer les valeurs du formulaire
       var formData = new FormData( event.target );
-      var myInit = {
-        method: 'POST',
-        mode: 'cors'
-      };
-      
-      let response = await fetch( app.base_url+'/list', myInit );
 
+      //2. Envoyer les infos du formulaire à l'api (et attendre une réponse)
+      let response = await fetch( app.base_url+'/list', {
+        method: "POST",
+        body: formData
+      });
       if (!response.ok) {
-        alert('Erreur pour envoyer la liste');
-        return;
+        let error = await response.json();
+        console.log(error);
+        return alert('Impossible de créer la liste !\n' + error.errors[0].message);
       }
-      //2. envoie ces valeurs à app.makeListInDOM pour créer une liste
-      app.makeListInDOM( formData.get('title') );
-      //3. fermer la modale
+      let newList = await response.json();
+
+      //3. utiliser la réponse de l'api, et passer les bonnes valeurs à makeListInDOM pour créer la liste dans le HTML
+      app.makeListInDOM( newList.title, newList.id );
+      //4. fermer la modale
       app.hideModals();
-    }catch (error) {
-      console.error(error);
-      alert('Erreur pour envoyer la liste');
+
+    } catch (error) {
+      console.log(error);
+      alert('Impossible de créer la liste !');
     }
-    
   },
 
   /** Méthode pour capturer le "submit" du formulaire "ajouter une carte" */
   handleAddCardForm: async (event) => {
     try {
       event.preventDefault(); // on empêche la page de se recharger !
-    //1. récupérer les valeurs du formulaire
-    var formData = new FormData( event.target );
+      //1. récupérer les valeurs du formulaire
+      var formData = new FormData( event.target );
 
-    var myInit = {
-      method: 'POST',
-      mode: 'cors'
-    };
+      //2. envoyer les infos à l'API, et attendre une réponse
+      let response = await fetch( app.base_url+'/card', {
+        method: "POST",
+        body: formData
+      });
+      if( !response.ok) {
+        return alert('Impossible de créer la carte !');
+      }
+      let newCard = await response.json();
 
-    let response = await fetch( app.base_url+'/card/:id/label', myInit );
-
-    if (!response.ok) {
-      alert('Erreur pour envoyer la carte');
-      return;
+      //3. utiliser la réponse pour créer la carte dans le DOM
+      app.makeCardInDOM( newCard.title, newCard.list_id, newCard.id, newCard.color );
+      //4. fermer la modale
+      app.hideModals();
+    } catch (error) {
+      console.log(error);
+      alert('Impossible de créer la carte !');
     }
+  },
 
-    //2. passer ces valeurs à app.makeCardInDOM pour créer une carte
-    app.makeCardInDOM( formData.get('title'), formData.get('list_id') );
-    //3. fermer la modale
-    app.hideModals();
+  /** Méthode pour éditer une liste */
+  handleEditListForm: async (event) => {
+    try {
+      event.preventDefault(); // on empeche le rechargement de la page
+      
+      //1. récupérer les infos du formulaire
+      var formData = new FormData( event.target );
+      const listId = formData.get('list-id');
+            
+      //2. transmettre les infos à l'API, et attendre la réponse
+      let response = await fetch( app.base_url+'/list/'+listId, {
+        method: 'PATCH',
+        body: formData
+      });
 
-    }catch (error) {
-      console.error(error);
-      alert('Erreur pour envoyer la card');
+      //3. si tout va bien, mettre à jour le h2 dans le DOM
+      if (response.ok) {
+        let list = await response.json();
+        event.target.closest('.column').querySelector('h2').textContent = list.title;
+
+        // alternative : utiliser les infos de formData
+        // event.target.closest('.column').querySelector('h2').textContent = formData.get('title');
+      }
+            
+    } catch (error) {
+      console.log(error);
+    } finally {
+      // dans tous les cas...  on réaffiche le titre, et on cache le formulaire
+      event.target.classList.add('is-hidden');
+      event.target.closest('.column').querySelector('h2').classList.remove('is-hidden');
     }
-    
+  },
+
+  /** Méthode pour gérer la soumission du formulaire "éditer une carte" */
+  handleEditCardForm: async (event) => {
+    try {
+      event.preventDefault();
+      // 1. récupérer les infos du formulaire
+      var formData = new FormData( event.target );
+      const cardId = formData.get('card-id');
+      // 2. envoyer ces infos à l'API, et attendre une réponse
+      let response = await fetch( app.base_url+'/card/'+cardId, {
+        method: 'PATCH',
+        body: formData
+      });
+      // 3. mettre à jour la carte avec les nouvelles infos
+      if (response.ok) {
+        let card = await response.json();
+        event.target.closest('.column').querySelector('.card-title').textContent = card.title;
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+    // 4. fermer la modale
+    event.target.classList.add('is-hidden');
+    }
   },
 
   /** Méthode pour créer une liste et l'ajouter au DOM */
@@ -141,9 +230,16 @@ var app = {
 
     //3.alt. mettre à jour l'id de la nouvelle liste
     newList.querySelector('.panel').setAttribute('list-id', listId);
+    // on en profite pour préremplir l'input du formulaire "éditer la liste"
+    newList.querySelector('input[name="list-id"]').value = listId;
 
     //3bis. ajouter des eventListener sur les éléments de la nouvelle liste !
+    // - ajouter une carte
     newList.querySelector('.add-card-btn').addEventListener('click', app.showAddCardModal);
+    // - modifier le titre => clic sur H2
+    newList.querySelector('h2').addEventListener('dblclick', app.showEditListForm);
+    // - modifier le titre => submit formulaire
+    newList.querySelector('.edit-list-form').addEventListener('submit', app.handleEditListForm);
 
     //4. ajouter "nouvelleListe" au DOM, au bon endroit.
     // - 4.1 cibler "la colonne avec des boutons"
@@ -152,15 +248,22 @@ var app = {
   },
 
   /** Méthode pour créer une carte et l'ajouter dans la bonne liste */
-  makeCardInDOM: (cardTitle, listId, cardColor) => {
+  makeCardInDOM: (cardTitle, listId, cardId, cardColor) => {
     //1. récupérer le template
     const template = document.getElementById('cardTemplate');
     //2. cloner le template
     let newCard = document.importNode(template.content, true);
     //3. mettre à jour le titre de la carte
     newCard.querySelector('.card-title').textContent = cardTitle;
-    // Mise à jour de la couleur du background
+
+    // 3bis. Modifier aussi l'id de la carte, et son bgColor
+    newCard.querySelector('.box').setAttribute('card-id', cardId);
     newCard.querySelector('.box').style.backgroundColor = cardColor;
+
+    // 3ter. Rajouter des interactions !
+    // - clic sur le style => modifier la carte
+    newCard.querySelector('.edit-card-btn').addEventListener('click', app.showEditCardModal);
+
     //4. ajouter la nouvelle carte dans la bonne liste
     document.querySelector(`[list-id="${listId}"] .panel-block`).appendChild(newCard);
   },
@@ -182,35 +285,19 @@ var app = {
       console.log(lists);
       // pour chaq liste...
       for (let list of lists) {
+        // ... on crée la liste dans le DOM...
         app.makeListInDOM(list.title, list.id);
+        // ... puis, pour chaque carte de la liste...
+        for (let card of list.cards) {
+          // ...on crée la carte dans le DOM
+          app.makeCardInDOM(card.title, list.id, card.id, card.color);
+        }
       }      
     } catch (error) {
       console.error(error);
       alert('Impossible de récupérer les listes');
     }
-  },
-
-  getCardsFromAPI: async () => {
-    try {
-      //On récupère les données des cartes depuis l'API
-      let response = await fetch( app.base_url+'/card' );
-      //On vérifie que l'API n'envoie pas une erreur
-      if(!response.ok) {
-        alert('Impossible de récupèrer les cartes');
-        return;
-      }
-
-      let cards = await response.json();
-      console.log(cards);
-      //On boucle pour chaque carte
-      for(let card of cards) {
-        app.makeCardInDOM(card.title, card.list_id, card.color);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Impossible de récupèrer les cartes');
-    }
-  },
+  }
 
 };
 

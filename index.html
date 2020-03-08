@@ -16,8 +16,7 @@
             <h1 class="title">
                 oKanban
             </h1>
-            <div class="columns">
-               
+            <div class="columns" id="labels">
                 <div class="column" id="buttonsColumn">
                     <button class="button is-success" id="addListButton">
                         <span class="icon is-small">
@@ -25,8 +24,13 @@
                         </span>
                         &nbsp; Ajouter une liste
                     </button>
+                    <button class="button is-success" id="addLabelButton">
+                        <span class="icon is-small">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        &nbsp; Ajouter un tag
+                    </button>
                 </div>
-
             </div>
         </div>
     </section>
@@ -85,6 +89,36 @@
             </form>
         </div>
     </div>
+    <div class="modal" id="addLabelModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form action="" method="POST">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Ajouter un label</p>
+                    <button class="delete close" type="button" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Titre</label>
+                        <div class="control">
+                            <input type="text" class="input" name="title" value="" placeholder="Titre du label">
+                            <input type="hidden" name="card_id">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Couleur</label>
+                        <div class="control">
+                            <input type="color" name="color">
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success">Save changes</button>
+                    <button class="button close" type="button">Cancel</button>
+                </footer>
+            </form>
+        </div>
+    </div>
 
     <div class="modal" id="editCardModal">
         <div class="modal-background"></div>
@@ -129,7 +163,8 @@
                             <input type="hidden" name="list-id" value="1">
                             <div class="field has-addons">
                                 <div class="control">
-                                    <input type="text" class="input is-small" name="title" value="" placeholder="Nom de la liste">
+                                    <input type="text" class="input is-small" name="title" value=""
+                                        placeholder="Nom de la liste">
                                 </div>
                                 <div class="control">
                                     <button class="button is-small is-success">Valider</button>
@@ -153,7 +188,7 @@
                 </div>
             </div>
             <div class="panel-block is-block has-background-light">
-               
+
             </div>
         </div>
     </template>
@@ -181,7 +216,31 @@
         </div>
         <!--/ card -->
     </template>
-    
+
+    <template id="labelTemplate">
+        <!-- card -->
+        <div class="box" label-id="M">
+            <div class="columns">
+                <div class="column label-title">
+
+                </div>
+                <div class="column is-narrow">
+                    <a href="#" class="edit-label-btn">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-pencil-alt"></i>
+                        </span>
+                    </a>
+                    <a href="#" class="delete-label-btn">
+                        <span class="icon is-small has-text-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!--/ card -->
+    </template>
+
 
     <!-- Chargement de mon fichier JS -->
     <script src="./assets/js/main.js"></script>

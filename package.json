@@ -1,0 +1,22 @@
+{
+  "name": "okanban-front-jour2-scroutch",
+  "version": "1.0.0",
+  "description": "## Dynamic data !",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/O-clock-Bifrost/okanban-front-jour2-scroutch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/O-clock-Bifrost/okanban-front-jour2-scroutch/issues"
+  },
+  "homepage": "https://github.com/O-clock-Bifrost/okanban-front-jour2-scroutch#readme",
+  "dependencies": {
+    "browserify": "^16.5.0"
+  }
+}

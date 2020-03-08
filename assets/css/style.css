@@ -2,3 +2,7 @@ body {
   background-color: #ccc;
   height: 100vh;
 }
+
+.add-card-btn {
+  margin-right: 0.2rem;
+}

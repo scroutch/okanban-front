@@ -40,6 +40,8 @@ var app = {
         // on cible le formulaire et on écoute l'event submit => app.handleAddListForm
         document.querySelector('#addListModal form').addEventListener('submit', listModule.handleAddListForm);
 
+        document.querySelector('#addLabelModal form').addEventListener('submit', labelModule.handleAddLabelForm);
+
         /** Boutons "+" : ajouter une carte */
         const addCardButtons = document.querySelectorAll('.add-card-btn');
         for (let button of addCardButtons) {

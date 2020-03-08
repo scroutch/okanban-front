@@ -212,20 +212,35 @@
                         </span>
                     </a>
                 </div>
+                <div class="panel-block is-block has-background-light">
+
+                </div>
             </div>
         </div>
         <!--/ card -->
     </template>
 
     <template id="labelTemplate">
-        <!-- card -->
         <div class="tags are-large" label-id="M">
             <span class="tag is-rounded label-title">
                 Tag
             </span>
+            <form action="" method="POST" class="is-hidden edit-label-form">
+                <input type="hidden" name="label-id" value="1">
+                <div class="field has-addons">
+                    <div class="control">
+                        <input type="text" class="input is-small" name="title" value="" placeholder="Nom du label">
+                    </div>
+                    <div class="control">
+                        <input type="color" name="color">
+                    </div>
+                    <div class="control">
+                        <button class="button is-small is-success">Valider</button>
+                    </div>
+                </div>
+            </form>
             <button class="delete is-medium"></button>
         </div>
-        <!--/ card -->
     </template>
 
 

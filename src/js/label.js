@@ -14,6 +14,47 @@ const labelModule = {
         document.getElementById('addLabelModal').classList.add('is-active');
     },
 
+    //Méthode pour modifier un tag
+    showEditLabelForm: (event) => {
+        event.target.classList.add("is-hidden");
+        const theForm = event.target.closest('.tags').querySelector('form');
+        theForm.classList.remove('is-hidden');
+        // au passage, on préremplie l'input "title" avec le contenu du H2
+        theForm.querySelector('input[name="title"]').value = event.target.textContent;
+    },
+
+    /** Méthode pour éditer une label */
+    handleEditLabelForm: async (event) => {
+        try {
+            event.preventDefault(); // on empeche le rechargement de la page
+
+            //1. récupérer les infos du formulaire
+            var formData = new FormData(event.target);
+            const labelId = formData.get('label-id');
+            const labelColor = formData.get('color');
+
+            //2. transmettre les infos à l'API, et attendre la réponse
+            let response = await fetch(labelModule.base_url + '/label/' + labelId, {
+                method: 'PATCH',
+                body: formData
+            });
+
+            //3. si tout va bien, mettre à jour le tag dans le DOM
+            if (response.ok) {
+                let label = await response.json();
+                event.target.closest('.tags').querySelector('.tag').textContent = label.title;
+                event.target.closest('.tags').querySelector('.tag').style.backgroundColor = labelColor;
+            }
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            // dans tous les cas...  on réaffiche le titre, et on cache le formulaire
+            event.target.classList.add('is-hidden');
+            event.target.closest('.tags').querySelector('.tag').classList.remove('is-hidden');
+        }
+    },
+
     //Méthode pour creer un label et l'ajouter au dom
     makeLabelInDom: (labelTitle, labelId, labelColor) => {
         //On récupère le template
@@ -27,6 +68,10 @@ const labelModule = {
 
         //SUpprimer un label
         newLabel.querySelector('.delete').addEventListener('click', labelModule.handleDeleteLabel);
+        // - modifier le titre => clic sur H2
+        newLabel.querySelector('.tag').addEventListener('dblclick', labelModule.showEditLabelForm);
+        // - modifier le titre => submit formulaire
+        newLabel.querySelector('.edit-label-form').addEventListener('submit', labelModule.handleEditLabelForm);
         //Ajouter un label
         // newLabel.getElementById('addLabelButton').addEventListener('click', labelModule.showAddLabelModal);
         //ajouter le label dans la bonne carte

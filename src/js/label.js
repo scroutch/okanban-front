@@ -24,6 +24,9 @@ const labelModule = {
         //On modifie le bgColor du label
         newLabel.querySelector('.tags').setAttribute('label-id', labelId);
         newLabel.querySelector('.tag').style.backgroundColor = labelColor;
+
+        //SUpprimer un label
+        newLabel.querySelector('.delete').addEventListener('click', labelModule.handleDeleteLabel);
         //Ajouter un label
         // newLabel.getElementById('addLabelButton').addEventListener('click', labelModule.showAddLabelModal);
         //ajouter le label dans la bonne carte
@@ -56,6 +59,31 @@ const labelModule = {
         } catch (error) {
             console.log(error);
             alert('Impossible de créer le tag');
+        }
+    },
+
+    //Méthode pour supprimer un label
+    handleDeleteLabel: async (event) => {
+        try {
+            const labelElement = event.target.closest('.tags');
+
+            if (!confirm("Voulez-vous supprimez ce label ?")) {
+                return;
+            }
+
+            //On envoie la requête à l'API
+            const labelId = labelElement.getAttribute("label-id");
+            let response = await fetch(labelModule.base_url + '/label/' + labelId, {
+                method: "DELETE"
+            });
+
+            //On supprime le label du dom
+            if (response.ok) {
+                labelElement.remove();
+            }
+        } catch (error) {
+            console.log(error);
+            alert('Impossible de supprimer le tag');
         }
     },
 

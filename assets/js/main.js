@@ -245,8 +245,8 @@ const labelModule = {
         let newLabel = document.importNode(template.content, true);
         newLabel.querySelector('.label-title').textContent = labelTitle;
         //On modifie le bgColor du label
-        newLabel.querySelector('.box').setAttribute('label-id', labelId);
-        newLabel.querySelector('.box').style.backgroundColor = labelColor;
+        newLabel.querySelector('.tags').setAttribute('label-id', labelId);
+        newLabel.querySelector('.tag').style.backgroundColor = labelColor;
         //Ajouter un label
         // newLabel.getElementById('addLabelButton').addEventListener('click', labelModule.showAddLabelModal);
         //ajouter le label dans la bonne carte
